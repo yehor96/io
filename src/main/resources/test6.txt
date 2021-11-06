@@ -1,0 +1,1 @@
+This file will not have matching searched word result count to the number of sentences. The word that we repeat is actually 'word'. No mention here? word word word! Empty sentence ^_^ word.

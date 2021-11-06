@@ -1,5 +1,6 @@
 package com.luxcampus.fileanalyzer;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -8,11 +9,13 @@ import static com.luxcampus.fileanalyzer.FileAnalyzer.INCORRECT_ARGUMENT_MESSAGE
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+@DisplayName("FileAnalyzer tests")
 class FileAnalyzerTest {
 
     final static String RESOURCES = "src/main/resources";
 
     @Test
+    @DisplayName("Test large file")
     void testLargeFile() throws IOException {
         String searchedWord = "tree";
         String[] args = {RESOURCES + "\\test1.txt", searchedWord};
@@ -27,6 +30,7 @@ class FileAnalyzerTest {
     }
 
     @Test
+    @DisplayName("Test file with searched word")
     void testFileWithSearchedWord() throws IOException {
         String keyword = "Hello";
         String[] args = {RESOURCES + "\\test2.txt", keyword};
@@ -41,6 +45,7 @@ class FileAnalyzerTest {
     }
 
     @Test
+    @DisplayName("Test file with searched word and different end symbols")
     void testFileWithSearchedWordAndDifferentEndSymbols() throws IOException {
         String keyword = "sentence";
         String[] args = {RESOURCES + "\\test3.txt", keyword};
@@ -56,6 +61,7 @@ class FileAnalyzerTest {
     }
 
     @Test
+    @DisplayName("Test file with empty content")
     void testFileWithEmptyContent() throws IOException {
         String keyword = "word";
         String[] args = {RESOURCES + "\\test4.txt", keyword};
@@ -68,6 +74,7 @@ class FileAnalyzerTest {
     }
 
     @Test
+    @DisplayName("Test file without any chars")
     void testFileWithoutChars() throws IOException {
         String keyword = "without";
         String[] args = {RESOURCES + "\\test5.txt", keyword};
@@ -81,6 +88,7 @@ class FileAnalyzerTest {
     }
 
     @Test
+    @DisplayName("Test file with not matching count of searched word and sentences")
     void testFileWithNotMatchingCountOfSearchedWordAndSentences() throws IOException {
         String keyword = "word";
         String[] args = {RESOURCES + "\\test6.txt", keyword};
@@ -95,6 +103,7 @@ class FileAnalyzerTest {
     }
 
     @Test
+    @DisplayName("Test exception is thrown when passing only directory")
     void testExceptionWhenPassingDirectory() {
         String[] args = {RESOURCES};
 
@@ -108,6 +117,7 @@ class FileAnalyzerTest {
     }
 
     @Test
+    @DisplayName("Test exception is thrown when passing one argument")
     void testExceptionWhenPassingOneArgument() {
         String[] args = {RESOURCES + "\\test6.txt"};
 
@@ -121,6 +131,7 @@ class FileAnalyzerTest {
     }
 
     @Test
+    @DisplayName("Test analyzing image file")
     void testImageFile() throws IOException {
         String keyword = "word";
         String[] args = {RESOURCES + "\\img.png", keyword};

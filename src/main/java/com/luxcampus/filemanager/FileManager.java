@@ -71,8 +71,7 @@ public class FileManager {
     private static void copyFile(File fromFile, File toFile) throws IOException {
         try (FileInputStream inputStream = new FileInputStream(fromFile);
              FileOutputStream outputStream = new FileOutputStream(toFile)) {
-            byte[] content = inputStream.readAllBytes();
-            outputStream.write(content);
+            inputStream.transferTo(outputStream);
         }
     }
 

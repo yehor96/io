@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,33 +32,50 @@ public class FileAnalyzer {
     }
 
     private static Result find(String word, File file) throws IOException {
-        String[] allSentences = readSentences(file);
+        String content = getContent(file);
+        List<String> allSentences = breakIntoSentences(content);
+        List<String> searchedSentences = getSearchedSentences(allSentences, word);
+        int wordCount = getWordOccurrences(searchedSentences, word);
+        return new Result(wordCount, searchedSentences);
+    }
 
+    static List<String> breakIntoSentences(String content) {
+        List<String> sentences = Arrays.asList(content.split("((?<=[.?!]))"));
+        for (int i = 0; i < sentences.size(); i++) {
+            var sentence = sentences.get(i);
+            sentences.set(i, sentence.trim());
+        }
+        return sentences;
+    }
+
+    static List<String> getSearchedSentences(List<String> sentences, String word) {
         List<String> searchedSentences = new ArrayList<>();
-        for (String sentence : allSentences) {
+        for (String sentence : sentences) {
             if (sentence.contains(word)) {
-                searchedSentences.add(sentence.trim());
+                searchedSentences.add(sentence);
             }
         }
+        return searchedSentences;
+    }
 
-        Pattern pattern = Pattern.compile(word);
+    static int getWordOccurrences(List<String> sentences, String word) {
+        Pattern pattern = Pattern.compile("\\b" + word + "\\b");
         int count = 0;
-        for (String searchedSentence : searchedSentences) {
+        for (String searchedSentence : sentences) {
             Matcher matcher = pattern.matcher(searchedSentence);
             while (matcher.find()) {
                 count++;
             }
         }
-
-        return new Result(count, searchedSentences);
+        return count;
     }
 
-    private static String[] readSentences(File file) throws IOException {
+    private static String getContent(File file) throws IOException {
         String content;
         try (FileInputStream inputStream = new FileInputStream(file)) {
             content = new String(inputStream.readAllBytes());
         }
-        return content.split("((?<=[.?!]))");
+        return content;
     }
 
     private static void print(String word, Result result) {

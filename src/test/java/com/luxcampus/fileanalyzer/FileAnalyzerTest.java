@@ -3,144 +3,162 @@ package com.luxcampus.fileanalyzer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
-import static com.luxcampus.fileanalyzer.FileAnalyzer.INCORRECT_ARGUMENT_MESSAGE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
-@DisplayName("FileAnalyzer tests")
+@DisplayName("FileAnalyzer unit tests")
 class FileAnalyzerTest {
 
-    final static String RESOURCES = "src/main/resources";
-
+    @DisplayName("Test breakIntoSentences() method with all types of separators")
     @Test
-    @DisplayName("Test large file")
-    void testLargeFile() throws IOException {
-        String searchedWord = "tree";
-        String[] args = {RESOURCES + "\\test1.txt", searchedWord};
+    void testBreakIntoSentencesWithValidSeparators() {
+        String content = "word 1. Another word! And one more word?";
+        List<String> expectedResult = List.of("word 1.", "Another word!", "And one more word?");
 
-        Result result = FileAnalyzer.search(args);
-        var sentences = result.sentences();
+        List<String> resultSentences = FileAnalyzer.breakIntoSentences(content);
 
-        assertEquals(2, result.count());
-        assertEquals(2, sentences.size());
-        assertEquals("Tree at my window, window tree.", sentences.get(0));
-        assertEquals("But tree, I have seen you taken and tossed.", sentences.get(1));
+        assertEquals(expectedResult, resultSentences);
     }
 
+    @DisplayName("Test breakIntoSentences() method with invalid separators")
     @Test
-    @DisplayName("Test file with searched word")
-    void testFileWithSearchedWord() throws IOException {
-        String keyword = "Hello";
-        String[] args = {RESOURCES + "\\test2.txt", keyword};
+    void testBreakIntoSentencesWithInvalidSeparators() {
+        String content = "word 1; Another word\n And one more word<>";
+        List<String> expectedResult = List.of(content);
 
-        Result result = FileAnalyzer.search(args);
-        var sentences = result.sentences();
+        List<String> resultSentences = FileAnalyzer.breakIntoSentences(content);
 
-        assertEquals(4, result.count());
-        assertEquals(4, sentences.size());
-        assertEquals("Hello World!", sentences.get(0));
-        assertEquals("Yes, Hello!", sentences.get(sentences.size() - 1));
+        assertEquals(expectedResult, resultSentences);
     }
 
+    @DisplayName("Test breakIntoSentences() method with content that does not have separators")
     @Test
-    @DisplayName("Test file with searched word and different end symbols")
-    void testFileWithSearchedWordAndDifferentEndSymbols() throws IOException {
-        String keyword = "sentence";
-        String[] args = {RESOURCES + "\\test3.txt", keyword};
+    void testBreakIntoSentencesWithoutSeparators() {
+        String content = "Sentence without separators";
+        List<String> expectedResult = List.of(content);
 
-        Result result = FileAnalyzer.search(args);
-        var sentences = result.sentences();
+        List<String> resultSentences = FileAnalyzer.breakIntoSentences(content);
 
-        assertEquals(3, result.count());
-        assertEquals(3, sentences.size());
-        assertEquals("sentence one.", sentences.get(0));
-        assertEquals("sentence two!", sentences.get(1));
-        assertEquals("sentence three?", sentences.get(2));
+        assertEquals(expectedResult, resultSentences);
     }
 
+    @DisplayName("Test getSearchedSentences() method when all sentences match")
     @Test
-    @DisplayName("Test file with empty content")
-    void testFileWithEmptyContent() throws IOException {
-        String keyword = "word";
-        String[] args = {RESOURCES + "\\test4.txt", keyword};
+    void testGetSearchedSentencesWhenAllSentencesMatch() {
+        List<String> inputSentences = List.of("word 1.", "Another word!", "And one more word?");
+        String word = "word";
 
-        Result result = FileAnalyzer.search(args);
-        var sentences = result.sentences();
+        List<String> resultSentences = FileAnalyzer.getSearchedSentences(inputSentences, word);
 
-        assertEquals(0, result.count());
-        assertEquals(0, sentences.size());
+        assertEquals(inputSentences, resultSentences);
     }
 
+    @DisplayName("Test getSearchedSentences() method with matching and not matching entries")
     @Test
-    @DisplayName("Test file without any chars")
-    void testFileWithoutChars() throws IOException {
-        String keyword = "without";
-        String[] args = {RESOURCES + "\\test5.txt", keyword};
+    void testGetSearchedSentencesWhenSomeSentencesMatchAndSomeNot() {
+        List<String> inputSentences = List.of("word 1.", "More random text!", "Another word!", "And one more word?", "Something else.", "The end.");
+        List<String> expectedResult = List.of("word 1.", "Another word!", "And one more word?");
+        String word = "word";
 
-        Result result = FileAnalyzer.search(args);
-        var sentences = result.sentences();
+        List<String> resultSentences = FileAnalyzer.getSearchedSentences(inputSentences, word);
 
-        assertEquals(1, result.count());
-        assertEquals(1, sentences.size());
-        assertEquals("Only one sentence here without any chars", sentences.get(0));
+        assertEquals(expectedResult, resultSentences);
     }
 
+    @DisplayName("Test getSearchedSentences() method with empty input")
     @Test
-    @DisplayName("Test file with not matching count of searched word and sentences")
-    void testFileWithNotMatchingCountOfSearchedWordAndSentences() throws IOException {
-        String keyword = "word";
-        String[] args = {RESOURCES + "\\test6.txt", keyword};
+    void testGetSearchedSentencesWithEmptyInput() {
+        List<String> inputSentences = Collections.emptyList();
+        String word = "word";
 
-        Result result = FileAnalyzer.search(args);
-        var sentences = result.sentences();
+        List<String> resultSentences = FileAnalyzer.getSearchedSentences(inputSentences, word);
 
-        assertEquals(7, result.count());
-        assertEquals(4, sentences.size());
-        assertEquals("This file will not have matching searched word result count to the number of sentences.", sentences.get(0));
-        assertEquals("Empty sentence ^_^ word.", sentences.get(sentences.size() - 1));
+        assertEquals(inputSentences, resultSentences);
     }
 
+    @DisplayName("Test getSearchedSentences() method when none of sentences contains searched word")
     @Test
-    @DisplayName("Test exception is thrown when passing only directory")
-    void testExceptionWhenPassingDirectory() {
-        String[] args = {RESOURCES};
+    void testGetSearchedSentencesWithoutTheSearchedWord() {
+        List<String> inputSentences = List.of("word 1.", "More random text!", "Another word!", "And one more word?", "Something else.", "The end.");
+        List<String> expectedResult = Collections.emptyList();
+        String word = "information";
 
-        try {
-            FileAnalyzer.search(args);
-            fail("Exception was not thrown");
-        } catch (Exception e) {
-            assertEquals(IllegalArgumentException.class, e.getClass());
-            assertEquals(INCORRECT_ARGUMENT_MESSAGE, e.getMessage());
-        }
+        List<String> resultSentences = FileAnalyzer.getSearchedSentences(inputSentences, word);
+
+        assertEquals(expectedResult, resultSentences);
     }
 
+    @DisplayName("Test getWordOccurrences() method with one searched word")
     @Test
-    @DisplayName("Test exception is thrown when passing one argument")
-    void testExceptionWhenPassingOneArgument() {
-        String[] args = {RESOURCES + "\\test6.txt"};
+    void testGetWordOccurrencesWithOneSearchedWord() {
+        List<String> inputSentences = List.of("word 1.", "More random text!", "Another information!", "And one more question?", "Something else.", "The end.");
+        String word = "word";
+        int expectedResult = 1;
 
-        try {
-            FileAnalyzer.search(args);
-            fail("Exception was not thrown");
-        } catch (Exception e) {
-            assertEquals(IllegalArgumentException.class, e.getClass());
-            assertEquals(INCORRECT_ARGUMENT_MESSAGE, e.getMessage());
-        }
+        int actualResult = FileAnalyzer.getWordOccurrences(inputSentences, word);
+
+        assertEquals(expectedResult, actualResult);
     }
 
+    @DisplayName("Test getWordOccurrences() method with one searched word per sentence")
     @Test
-    @DisplayName("Test analyzing image file")
-    void testImageFile() throws IOException {
-        String keyword = "word";
-        String[] args = {RESOURCES + "\\img.png", keyword};
+    void testGetWordOccurrencesWithOneSearchedWordPerSentence() {
+        List<String> inputSentences = List.of("word 1.", "Another word!", "And one more word?");
+        String word = "word";
+        int expectedResult = 3;
 
-        Result result = FileAnalyzer.search(args);
-        var sentences = result.sentences();
+        int actualResult = FileAnalyzer.getWordOccurrences(inputSentences, word);
 
-        assertEquals(0, result.count());
-        assertEquals(0, sentences.size());
+        assertEquals(expectedResult, actualResult);
     }
 
+    @DisplayName("Test getWordOccurrences() method without searched word")
+    @Test
+    void testGetWordOccurrencesWithoutSearchedWord() {
+        List<String> inputSentences = List.of("word 1.", "Another word!", "And one more word?");
+        String word = "information";
+        int expectedResult = 0;
+
+        int actualResult = FileAnalyzer.getWordOccurrences(inputSentences, word);
+
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @DisplayName("Test getWordOccurrences() method with many searched words per one sentence")
+    @Test
+    void testGetWordOccurrencesWithManySearchedWordsPerSentence() {
+        List<String> inputSentences = List.of("Long sentence that contains one word and another word.", "Here, also a few: word, word, word.", "Another sentence");
+        String word = "word";
+        int expectedResult = 5;
+
+        int actualResult = FileAnalyzer.getWordOccurrences(inputSentences, word);
+
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @DisplayName("Test getWordOccurrences() method with word that contains all the symbols from searched word + 1 more symbol")
+    @Test
+    void testGetWordOccurrencesWithMatchingSymbolsButNotMatchingWord() {
+        List<String> inputSentences = List.of("A lot of words here.", "These are words, but not the ones you are looking for!");
+        String word = "word";
+        int expectedResult = 0;
+
+        int actualResult = FileAnalyzer.getWordOccurrences(inputSentences, word);
+
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @DisplayName("Test getWordOccurrences() method with searched word in different case")
+    @Test
+    void testGetWordOccurrencesWithWordInDifferentCase() {
+        List<String> inputSentences = List.of("Capitalization of Words Matter.", "Words!");
+        String word = "words";
+        int expectedResult = 0;
+
+        int actualResult = FileAnalyzer.getWordOccurrences(inputSentences, word);
+
+        assertEquals(expectedResult, actualResult);
+    }
 }

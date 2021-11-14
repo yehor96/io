@@ -4,13 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FileAnalyzer {
 
+    private static final Pattern BREAK_INTO_SENTENCES_PATTERN = Pattern.compile("((?<=[.?!]))");
     static final String INCORRECT_ARGUMENT_MESSAGE =
             "Make sure to pass two arguments - file path (not a directory) and a keyword";
 
@@ -40,12 +40,14 @@ public class FileAnalyzer {
     }
 
     static List<String> breakIntoSentences(String content) {
-        List<String> sentences = Arrays.asList(content.split("((?<=[.?!]))"));
-        for (int i = 0; i < sentences.size(); i++) {
-            var sentence = sentences.get(i);
-            sentences.set(i, sentence.trim());
+        String[] sentences = BREAK_INTO_SENTENCES_PATTERN.split(content);
+        List<String> trimmedSentences = new ArrayList<>();
+
+        for (String sentence : sentences) {
+            trimmedSentences.add(sentence.trim());
         }
-        return sentences;
+
+        return trimmedSentences;
     }
 
     static List<String> getSearchedSentences(List<String> sentences, String word) {

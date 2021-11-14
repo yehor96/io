@@ -17,9 +17,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @DisplayName("FileManager integration tests")
-class FileManagerIntegrationTest {
+class FileManagerITest {
 
-    final static String RESOURCES = "src/main/resources";
+    final static String RESOURCES = "src/test/resources";
     final static String MOVE_FROM = RESOURCES + "\\moveFrom";
     final static String MOVE_TO = RESOURCES + "\\moveTo";
     final static String COPY_FROM = RESOURCES + "\\copyFrom";

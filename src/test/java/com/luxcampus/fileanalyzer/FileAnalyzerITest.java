@@ -10,9 +10,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @DisplayName("FileAnalyzer integration tests")
-class FileAnalyzerIntegrationTest {
+class FileAnalyzerITest {
 
-    final static String RESOURCES = "src/main/resources";
+    final static String RESOURCES = "src/test/resources";
 
     @Test
     @DisplayName("Test large file")

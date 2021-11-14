@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 
 public class FileManager {
 
     static final String INCORRECT_ARGUMENT_MESSAGE = "Please make sure to pass a directory (not a file). %s is not valid argument";
     static final String INCORRECT_DESTINATION_MESSAGE = "Please make sure destination directory is not a file and source exists.";
+    static final String NO_ACCESS_TO_FILES_MESSAGE = "Do not have permissions to access some of the files/folders in path: ";
 
     public static int countFiles(String path) {
         File file = getFileIfValidDirectory(path);
@@ -36,7 +38,7 @@ public class FileManager {
     }
 
     static void delete(File directory) {
-        File[] files = directory.listFiles();
+        File[] files = getFilesOf(directory);
 
         for (File file : files) {
             if (file.isFile()) {
@@ -61,7 +63,8 @@ public class FileManager {
         if (!toDestination.exists()) {
             toDestination.mkdir();
         }
-        for (String fileName : fromDestination.list()) {
+
+        for (String fileName : getFileNamesOf(fromDestination)) {
             File fromFileChild = new File(fromDestination, fileName);
             File toFileChild = new File(toDestination, fileName);
             copy(fromFileChild, toFileChild);
@@ -77,7 +80,7 @@ public class FileManager {
 
     private static int countFiles(File file) {
         int count = 0;
-        File[] files = file.listFiles();
+        File[] files = getFilesOf(file);
 
         for (File innerFile : files) {
             if (innerFile.isFile()) {
@@ -92,7 +95,7 @@ public class FileManager {
 
     private static int countDirs(File file) {
         int count = 0;
-        File[] files = file.listFiles();
+        File[] files = getFilesOf(file);
 
         for (File innerFile : files) {
             if (innerFile.isDirectory()) {
@@ -113,6 +116,26 @@ public class FileManager {
         }
 
         return file;
+    }
+
+    private static File[] getFilesOf(File file) {
+        File[] files = file.listFiles();
+
+        if (Objects.isNull(files)) {
+            throw new IllegalArgumentException(NO_ACCESS_TO_FILES_MESSAGE + file.getPath());
+        }
+
+        return files;
+    }
+
+    private static String[] getFileNamesOf(File file) {
+        String[] files = file.list();
+
+        if (Objects.isNull(files)) {
+            throw new IllegalArgumentException(NO_ACCESS_TO_FILES_MESSAGE + file.getPath());
+        }
+
+        return files;
     }
 
 }
